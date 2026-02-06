@@ -56,7 +56,40 @@ const listDocuments = async (req, res) => {
   }
 };
 
+const fs = require("fs");
+const path = require("path");
+
+const downloadDocument = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const document = await Document.findById(id);
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    const filePath = path.resolve(document.filepath);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ message: "File not found on disk" });
+    }
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${document.title}"`
+    );
+    res.setHeader("Content-Type", "application/octet-stream");
+
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 module.exports = {
   uploadDocuments,
   listDocuments,
+  downloadDocument,
 };
