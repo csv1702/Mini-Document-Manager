@@ -2,11 +2,9 @@
 
 A comprehensive full-stack document management system that enables users to efficiently upload, organize, search, sort, download, and manage documents in a cloud-based environment.
 
-This project was developed as part of a Full-Stack Intern Assignment and emphasizes clean API architecture, separation of concerns, and intuitive user experience design.
-
 ---
 
-## 🌐 Live Demo
+## Live Demo
 
 - **Frontend (Vercel):** https://YOUR-FRONTEND-URL.vercel.app
 - **Backend API (Render):** https://YOUR-BACKEND-URL.onrender.com
@@ -15,7 +13,7 @@ This project was developed as part of a Full-Stack Intern Assignment and emphasi
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Frontend
 
@@ -38,7 +36,7 @@ This project was developed as part of a Full-Stack Intern Assignment and emphasi
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 ### Document Management
 
@@ -65,7 +63,7 @@ This project was developed as part of a Full-Stack Intern Assignment and emphasi
 
 ---
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 ### Design Philosophy
 
@@ -91,7 +89,7 @@ The architecture diagram below illustrates the interaction between frontend comp
 
 ---
 
-## 📡 API Reference
+## API Reference
 
 ### 1. Upload Documents
 
@@ -172,7 +170,7 @@ DELETE /api/documents/{id}
 
 ---
 
-## 💡 Technical Considerations & Design Decisions
+## Technical Considerations & Design Decisions
 
 ### 1. Multi-Document Upload Strategy
 
@@ -252,16 +250,16 @@ If transitioning from local disk to Amazon S3:
 
 **Recommended improvements with additional development time:**
 
-- 📄 **Document Previews** – Embedded PDF viewer and image lightbox for quick inspection
-- 🎯 **Drag-and-Drop Upload** – Native drag-drop support for improved UX
-- 📊 **Per-File Progress Tracking** – Granular progress indicators for each file during batch uploads
-- ⚡ **Bulk Operations** – Multi-select with batch delete and metadata edit capabilities
-- ♿ **Accessibility Enhancements** – WCAG 2.1 compliance, keyboard navigation, screen reader support
-- 🔍 **Advanced Search** – Fuzzy search, filters by file type, date ranges, and size thresholds
+- **Document Previews** – Embedded PDF viewer and image lightbox for quick inspection
+- **Drag-and-Drop Upload** – Native drag-drop support for improved UX
+- **Per-File Progress Tracking** – Granular progress indicators for each file during batch uploads
+- **Bulk Operations** – Multi-select with batch delete and metadata edit capabilities
+- **Accessibility Enhancements** – WCAG 2.1 compliance, keyboard navigation, screen reader support
+- **Advanced Search** – Fuzzy search, filters by file type, date ranges, and size thresholds
 
 ---
 
-## ⚙️ Design Trade-offs & Implementation Notes
+## Design Trade-offs & Implementation Notes
 
 The following decisions were made to align with project scope and requirements:
 
@@ -277,7 +275,7 @@ The following decisions were made to align with project scope and requirements:
 
 ---
 
-## 📸 Screenshots & User Interface
+## Screenshots & User Interface
 
 ### Main Dashboard
 
@@ -327,26 +325,8 @@ Upon successful upload, the system displays confirmation with newly added docume
 
 ---
 
-## 👨‍💼 Author & Project Information
+## Author
 
 **Developed by:** Chandra Shekhar Verma
 
-This project demonstrates full-stack development expertise including:
-
-- Frontend architecture with React and Tailwind CSS
-- Backend API design with Node.js and Express
-- Database design and cloud integration with MongoDB
-- File handling and streaming optimization
-- Responsive UI/UX implementation
-
 ---
-
-## 📝 License
-
-This project is open source and available under the MIT License.
-
----
-
-## 🤝 Feedback & Contributions
-
-Suggestions for improvements, bug reports, and feature requests are welcome. Please feel free to open an issue or submit a pull request.
