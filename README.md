@@ -6,10 +6,99 @@ A comprehensive full-stack document management system that enables users to effi
 
 ## Live Demo
 
-- **Frontend (Vercel):** https://YOUR-FRONTEND-URL.vercel.app
-- **Backend API (Render):** https://YOUR-BACKEND-URL.onrender.com
+- **Frontend (Vercel):** https://mini-document-manager.vercel.app/
+- **Backend API (Render):** https://mini-document-manager.onrender.com
 
-> **Note:** The backend employs local disk storage for uploaded files, which is mounted as a persistent volume on Render to ensure data persistence across deployments.
+- **Demo Video:** https://drive.google.com/file/d/1ZI2td2CzFKwsAmBRuKwmAYguBWk7RZF6/view?usp=sharing
+
+> **Note:** Note: The backend uses ephemeral storage on Render, so uploaded files may not persist across service restarts. This limitation is related to the hosting environment and does not affect the core upload, streaming download, or database logic demonstrated in this project.
+
+---
+
+## Design Questions
+
+### 1. Multi-Document Upload Strategy
+
+**How does the system handle multiple uploads?**
+
+The system uploads multiple documents in one request, not many separate requests.
+
+On the frontend, all selected files are sent together using a multipart/form-data request.
+On the backend, Multer processes each file in that request, saves the files to disk, and stores their metadata in the database.
+
+**Limits and tradeoffs:**
+
+- A file size limit is applied to avoid very large uploads
+- Uploading many large files at once can take more time, but using a single request reduces network overhead
+- This approach keeps the upload logic simple and easier to manage
+
+---
+
+### 2. Streaming
+
+**Why is streaming critical for upload/download?**
+
+Streaming transfers files in **chunks** rather than loading entire contents into memory. This approach is fundamental to scalable systems.
+
+**Without Streaming (Anti-pattern):**
+
+- ❌ Full file remains in server memory during transfer
+- ❌ Large files consume excessive RAM, causing out-of-memory errors
+- ❌ Scalability is severely limited (one large file blocks other requests)
+- ❌ Increased response latency and poor user experience
+
+**With Streaming (Recommended):**
+
+- ✅ Constant memory footprint regardless of file size
+- ✅ Server handles multiple concurrent large file transfers
+- ✅ Responsive and predictable performance
+- ✅ Suitable for production deployments
+
+---
+
+### 3. Cloud Storage Migration Path (S3)
+
+**How would the system adapt to AWS S3 storage?**
+
+If transitioning from local disk to Amazon S3:
+
+**Changes Required:**
+
+- Remove dependency on local file system
+- Integrate AWS SDK for S3 operations
+- Modify upload handler to stream directly to S3
+- Update download handler to retrieve objects from S3
+
+**MongoDB Metadata Updates:**
+
+- Add `s3ObjectKey` and `s3Bucket` fields
+- Preserve existing metadata schema
+
+**Benefits of S3 Migration:**
+
+- Unlimited scalability without disk management
+- Geographic distribution and automatic redundancy
+- Cost-efficient storage (pay-per-use model)
+- Reduced operational overhead
+
+**Architecture Remains Unchanged:**
+
+- MongoDB still manages metadata
+- REST API layer continues handling authorization and access control
+- Download streaming now originates from S3 instead of local disk
+
+---
+
+### 4. Future Enhancements for User Experience
+
+**Recommended improvements with additional development time:**
+
+- **Document Previews** – Embedded PDF viewer and image lightbox for quick inspection
+- **Drag-and-Drop Upload** – Native drag-drop support for improved UX
+- **Per-File Progress Tracking** – Granular progress indicators for each file during batch uploads
+- **Bulk Operations** – Multi-select with batch delete and metadata edit capabilities
+- **Accessibility Enhancements** – WCAG 2.1 compliance, keyboard navigation, screen reader support
+- **Advanced Search** – Fuzzy search, filters by file type, date ranges, and size thresholds
 
 ---
 
@@ -77,7 +166,7 @@ This system implements a **separation of concerns** pattern by isolating file st
 
 The architecture diagram below illustrates the interaction between frontend components, backend services, and storage layers:
 
-![System Architecture Diagram](./Architecture%20Diagram.png)
+![System Architecture Diagram](./Architecture%20Daigram.png)
 
 **Key architectural elements:**
 
@@ -167,95 +256,6 @@ DELETE /api/documents/{id}
 
 - Status `204 No Content` on successful deletion
 - Both metadata (MongoDB) and file (disk) are removed
-
----
-
-## Technical Considerations & Design Decisions
-
-### 1. Multi-Document Upload Strategy
-
-**How does the system handle multiple uploads?**
-
-Multiple documents are processed via a **single multipart/form-data request**. Multer middleware parses the request, extracts each file, stores binary content on disk, and persists metadata entries in MongoDB.
-
-**Design Benefits:**
-
-- Reduces network round-trips and overhead
-- Atomic transaction per upload request
-- Server-side rate limiting and file size constraints prevent abuse
-
-**Trade-offs:**
-
-- Single request failure requires re-upload of all files
-- Larger request payload requires adequate buffer allocation
-
----
-
-### 2. Importance of Streaming for File Operations
-
-**Why is streaming critical for upload/download?**
-
-Streaming transfers files in **chunks** rather than loading entire contents into memory. This approach is fundamental to scalable systems.
-
-**Without Streaming (Anti-pattern):**
-
-- ❌ Full file remains in server memory during transfer
-- ❌ Large files consume excessive RAM, causing out-of-memory errors
-- ❌ Scalability is severely limited (one large file blocks other requests)
-- ❌ Increased response latency and poor user experience
-
-**With Streaming (Recommended):**
-
-- ✅ Constant memory footprint regardless of file size
-- ✅ Server handles multiple concurrent large file transfers
-- ✅ Responsive and predictable performance
-- ✅ Suitable for production deployments
-
----
-
-### 3. Cloud Storage Migration Path (S3)
-
-**How would the system adapt to AWS S3 storage?**
-
-If transitioning from local disk to Amazon S3:
-
-**Changes Required:**
-
-- Remove dependency on local file system
-- Integrate AWS SDK for S3 operations
-- Modify upload handler to stream directly to S3
-- Update download handler to retrieve objects from S3
-
-**MongoDB Metadata Updates:**
-
-- Add `s3ObjectKey` and `s3Bucket` fields
-- Preserve existing metadata schema
-
-**Benefits of S3 Migration:**
-
-- Unlimited scalability without disk management
-- Geographic distribution and automatic redundancy
-- Cost-efficient storage (pay-per-use model)
-- Reduced operational overhead
-
-**Architecture Remains Unchanged:**
-
-- MongoDB still manages metadata
-- REST API layer continues handling authorization and access control
-- Download streaming now originates from S3 instead of local disk
-
----
-
-### 4. Future Enhancements for User Experience
-
-**Recommended improvements with additional development time:**
-
-- **Document Previews** – Embedded PDF viewer and image lightbox for quick inspection
-- **Drag-and-Drop Upload** – Native drag-drop support for improved UX
-- **Per-File Progress Tracking** – Granular progress indicators for each file during batch uploads
-- **Bulk Operations** – Multi-select with batch delete and metadata edit capabilities
-- **Accessibility Enhancements** – WCAG 2.1 compliance, keyboard navigation, screen reader support
-- **Advanced Search** – Fuzzy search, filters by file type, date ranges, and size thresholds
 
 ---
 
