@@ -17,6 +17,8 @@ app.get("/", (req, res) => {
 
 const testRoutes = require("./routes/test.routes");
 app.use("/api", testRoutes);
+const documentRoutes = require("./routes/document.routes");
+app.use("/api/documents", documentRoutes);
 
 
 module.exports = app;
