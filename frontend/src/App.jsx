@@ -1,9 +1,9 @@
+import Documents from "./pages/Documents";
+
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <h1 className="text-3xl font-bold text-blue-600">
-        Mini Document Manager
-      </h1>
+    <div className="min-h-screen bg-gray-100">
+      <Documents />
     </div>
   );
 }
