@@ -259,6 +259,14 @@ DELETE /api/documents/{id}
 
 ---
 
+## Testing
+
+Basic API tests were added using Jest and Supertest.
+The list documents endpoint is tested to verify response structure
+and ensure the API behaves correctly.
+
+---
+
 ## Design Trade-offs & Implementation Notes
 
 The following decisions were made to align with project scope and requirements:
