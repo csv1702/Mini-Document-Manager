@@ -6,10 +6,12 @@ const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
-export const uploadDocuments = (formData) =>
+export const uploadDocuments = (formData, onUploadProgress) =>
   api.post("/documents", formData, {
     headers: { "Content-Type": "multipart/form-data" },
+    onUploadProgress,
   });
+
 
 export const fetchDocuments = (params) =>
   api.get("/documents", { params });

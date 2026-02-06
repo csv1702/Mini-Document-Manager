@@ -5,6 +5,7 @@ function UploadDocuments({ onUploadSuccess }) {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [progress, setProgress] = useState(0);
 
   const handleFileChange = (e) => {
     setFiles(Array.from(e.target.files));
@@ -24,8 +25,15 @@ function UploadDocuments({ onUploadSuccess }) {
     try {
       setLoading(true);
       setError("");
-      await uploadDocuments(formData);
+      setProgress(0);
+
+      await uploadDocuments(formData, (event) => {
+        const percent = Math.round((event.loaded * 100) / event.total);
+        setProgress(percent);
+      });
+
       setFiles([]);
+      setProgress(0);
       onUploadSuccess();
     } catch (err) {
       setError("Upload failed. Please try again.");
@@ -42,10 +50,25 @@ function UploadDocuments({ onUploadSuccess }) {
         type="file"
         multiple
         onChange={handleFileChange}
-        className="mb-3"
+        className="mb-2"
       />
 
-      {error && <p className="text-red-500 mb-2">{error}</p>}
+      {files.length > 0 && (
+        <p className="text-sm text-gray-500 mb-2">
+          {files.length} file(s) selected
+        </p>
+      )}
+
+      {loading && (
+        <div className="w-full bg-gray-200 rounded h-2 mb-3">
+          <div
+            className="bg-blue-600 h-2 rounded transition-all"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      )}
+
+      {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
 
       <button
         onClick={handleUpload}
