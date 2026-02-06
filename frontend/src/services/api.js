@@ -20,3 +20,7 @@ export const downloadDocument = (id) =>
   api.get(`/documents/${id}/download`, {
     responseType: "blob",
   });
+
+export const deleteDocument = (id) =>
+  api.delete(`/documents/${id}`);
+

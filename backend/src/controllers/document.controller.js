@@ -29,6 +29,7 @@ const listDocuments = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const pageSize = parseInt(req.query.pageSize) || 10;
     const sortOrder = req.query.sortOrder === "asc" ? 1 : -1;
+    const sortBy = req.query.sortBy || "createdAt";
     const searchQuery = req.query.q || "";
 
     const filter = {
@@ -37,8 +38,24 @@ const listDocuments = async (req, res) => {
 
     const total = await Document.countDocuments(filter);
 
+    // 🔹 Aggregate total size (ALL matching docs, not just current page)
+    const totalSizeAggregation = await Document.aggregate([
+  {
+    $group: {
+      _id: null,
+      totalSize: { $sum: "$size" },
+    },
+  },
+]);
+
+const totalSize =
+  totalSizeAggregation.length > 0
+    ? totalSizeAggregation[0].totalSize
+    : 0;
+
+
     const documents = await Document.find(filter)
-      .sort({ createdAt: sortOrder })
+      .sort({ [sortBy]: sortOrder })
       .skip((page - 1) * pageSize)
       .limit(pageSize);
 
@@ -50,11 +67,16 @@ const listDocuments = async (req, res) => {
         pageSize,
         totalPages: Math.ceil(total / pageSize),
       },
+      summary: {
+        totalDocuments: total,
+        totalSize,
+      },
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 const fs = require("fs");
 const path = require("path");
@@ -87,9 +109,32 @@ const downloadDocument = async (req, res) => {
   }
 };
 
+const deleteDocument = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const document = await Document.findById(id);
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    if (fs.existsSync(document.filepath)) {
+      fs.unlinkSync(document.filepath);
+    }
+
+    await document.deleteOne();
+
+    res.json({ message: "Document deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 
 module.exports = {
   uploadDocuments,
   listDocuments,
   downloadDocument,
+  deleteDocument,
 };
